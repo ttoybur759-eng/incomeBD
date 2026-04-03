@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Earnly - Earn & Withdraw</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; min-height: 100vh; }
+    
+    .container { max-width: 400px; margin: 0 auto; background: rgba(255,255,255,0.05); min-height: 100vh; position: relative; overflow: hidden; }
+    
+    header { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); }
+    .balance-card { 
+      background: linear-gradient(90deg, #00c853, #64dd17); 
+      padding: 12px 20px; 
+      border-radius: 50px; 
+      font-weight: 700; 
+      box-shadow: 0 4px 15px rgba(0,200,83,0.4); 
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .page { display: none; padding: 20px; }
+    .page.active { display: block; }
+    
+    h1 { text-align: center; margin: 20px 0; font-size: 28px; }
+    .emoji { font-size: 50px; text-align: center; margin-bottom: 10px; }
+    
+    input, select, button {
+      width: 100%;
+      padding: 15px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+    }
+    input, select { background: rgba(255,255,255,0.1); color: white; }
+    button { 
+      background: linear-gradient(90deg, #00c853, #64dd17); 
+      color: black; 
+      font-weight: 700; 
+      font-size: 18px; 
+      cursor: pointer; 
+    }
+    button:hover { transform: scale(1.03); }
+    
+    .link-btn { background: none; color: #64dd17; text-decoration: underline; font-size: 15px; }
+    
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 400px;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .nav-item { text-align: center; color: #aaa; font-size: 12px; }
+    .nav-item.active { color: #64dd17; }
+    .nav-item i { font-size: 24px; display: block; margin-bottom: 4px; }
+    
+    .success { color: #64dd17; text-align: center; margin: 15px 0; font-weight: 600; }
+    .refer-card { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; text-align: center; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Registration Page -->
+    <div id="regPage" class="page active">
+      <div class="emoji">🚀</div>
+      <h1>Create Account</h1>
+      <select id="walletType">
+        <option value="">Select Wallet</option>
+        <option value="bKash">bKash 📱</option>
+        <option value="Nagad">Nagad 💰</option>
+        <option value="Rocket">Rocket 🚀</option>
+        <option value="Upay">Upay 📲</option>
+      </select>
+      <input type="text" id="walletNumber" placeholder="Your Wallet Number"/>
+      <input type="text" id="referCode" placeholder="Referral Code (Optional)"/>
+      <input type="text" id="username" placeholder="Username"/>
+      <input type="password" id="password" placeholder="Password"/>
+      <button onclick="register()">Register Now</button>
+      <p style="text-align:center; margin-top:10px;">
+        Already have an account? <span class="link-btn" onclick="showLogin()">Login</span>
+      </p>
+    </div>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="page">
+      <div class="emoji">🔑</div>
+      <h1>Welcome Back</h1>
+      <input type="text" id="loginUsername" placeholder="Username"/>
+      <input type="password" id="loginPassword" placeholder="Password"/>
+      <button onclick="login()">Login</button>
+      <p style="text-align:center; margin-top:10px;">
+        New here? <span class="link-btn" onclick="showReg()">Create Account</span>
+      </p>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="page">
+
+      <!-- Header with Balance -->
+      <header>
+        <div style="font-size:22px; font-weight:600;">Earnly 💸</div>
+        <div class="balance-card" id="balanceDisplay">৳ 0.00</div>
+      </header>
+
+      <!-- Home Page -->
+      <div id="homePage" class="page active">
+        <div style="text-align:center; margin:40px 0;">
+          <div class="emoji" style="font-size:80px;">💰</div>
+          <h2>Earn 20 Taka Every 2 Hours</h2>
+        </div>
+        <button onclick="claimReward()" style="padding:20px; font-size:22px;">Click Here</button>
+        <p style="text-align:center; margin-top:15px; color:#ccc;">
+          Watch for 15 seconds to get <strong>20 Taka</strong> 🎁<br>
+          <small>Next claim available after 2 hours</small>
+        </p>
+      </div>
+
+      <!-- Refer Page -->
+      <div id="referPage" class="page">
+        <div class="emoji">👥</div>
+        <h1>Invite Friends</h1>
+        <div class="refer-card">
+          <p>Your Referral Code</p>
+          <h2 id="myReferCode" style="font-size:28px; letter-spacing:3px; color:#64dd17;">EARNLY-7K9P2X</h2>
+          <button onclick="copyCode()" style="background:#333; color:white; padding:10px 20px; margin-top:10px;">Copy Code</button>
+        </div>
+        <p style="text-align:center; margin:30px 0; font-size:18px;">
+          Total Referrals: <strong id="totalRefer">00</strong><br>
+          Referral Income: <strong id="referIncome">৳ 0</strong>
+        </p>
+        <p style="text-align:center; color:#aaa; font-size:13px;">
+          Bonus 20 Taka will be added when your friend registers with your code<br>
+          <strong>and clicks "Click Here" at least once</strong>
+        </p>
+      </div>
+
+      <!-- Withdraw Page -->
+      <div id="withdrawPage" class="page">
+        <div class="emoji">🏧</div>
+        <h1>Withdraw Money</h1>
+        <p style="text-align:center; margin:15px 0;">
+          Wallet: <strong id="userWallet">bKash - 01XXXXXXXXX</strong>
+        </p>
+        <input type="number" id="withdrawAmount" placeholder="Amount (Minimum 100)"/>
+        <button onclick="withdraw()">Withdraw Now</button>
+        <p id="withdrawMsg" class="success"></p>
+      </div>
+
+      <!-- Bottom Navigation -->
+      <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab(0)">
+          <i>🏠</i>Home
+        </div>
+        <div class="nav-item" onclick="switchTab(1)">
+          <i>👥</i>Refer
+        </div>
+        <div class="nav-item" onclick="switchTab(2)">
+          <i>💸</i>Withdraw
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let lastClaimTime = 0;
+    let referCount = 0;      // ← Fixed: Starts at 00
+    let referIncome = 0;     // ← Fixed: Starts at 0
+
+    // Sample stylish referral codes (different every time)
+    const referCodes = ["EARNLY-7K9P2X", "BOOST24-A3B9M", "CASHUP-9X4Q7Z", "WIN20-KL2P8V", "GIFT50-MP3Q9R"];
+
+    function showReg() {
+      document.getElementById('regPage').classList.add('active');
+      document.getElementById('loginPage').classList.remove('active');
+    }
+
+    function showLogin() {
+      document.getElementById('loginPage').classList.add('active');
+      document.getElementById('regPage').classList.remove('active');
+    }
+
+    function register() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const walletType = document.getElementById('walletType').value;
+      const walletNum = document.getElementById('walletNumber').value.trim();
+      const enteredReferCode = document.getElementById('referCode').value.trim();
+
+      if (!username || !password || !walletType || !walletNum) {
+        alert("Please fill all required fields!");
+        return;
+      }
+
+      // Create new user with 40 Taka first-login bonus
+      currentUser = {
+        username: username,
+        wallet: walletType + " - " + walletNum,
+        balance: 40,                    // First registration bonus
+        myReferCode: referCodes[Math.floor(Math.random() * referCodes.length)],
+        referredBy: enteredReferCode || null,
+        hasClaimedOnce: false           // For referral bonus logic
+      };
+
+      localStorage.setItem('user', JSON.stringify(currentUser));
+      alert("🎉 Registration Successful!\nYou received 40 Taka bonus.");
+      showMainApp();
+    }
+
+    function login() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      if (username && password) {
+        currentUser = JSON.parse(localStorage.getItem('user'));
+        if (!currentUser) {
+          alert("No account found. Please register first.");
+          return;
+        }
+        showMainApp();
+      } else {
+        alert("Please enter username and password");
+      }
+    }
+
+    function showMainApp() {
+      document.getElementById('regPage').classList.remove('active');
+      document.getElementById('loginPage').classList.remove('active');
+      document.getElementById('mainApp').classList.add('active');
+
+      updateBalance();
+      document.getElementById('myReferCode').textContent = currentUser.myReferCode;
+      document.getElementById('totalRefer').textContent = String(referCount).padStart(2, '0');
+      document.getElementById('referIncome').textContent = "৳ " + referIncome;
+      document.getElementById('userWallet').textContent = currentUser.wallet;
+    }
+
+    function updateBalance() {
+      document.getElementById('balanceDisplay').innerHTML = `৳ ${currentUser.balance}.00`;
+    }
+
+    function claimReward() {
+      const now = Date.now();
+      if (now - lastClaimTime < 7200000) { // 2 hours = 7200000 ms
+        alert("⏳ You can claim again after 2 hours!");
+        return;
+      }
+
+      // Open the link directly in new tab
+      window.open("https://shorturl.at/3HSQK", "_blank");
+
+      // 15-second timer starts immediately after click
+      alert("🔗 Link opened in new tab.\nPlease watch for 15 seconds to earn 20 Taka.");
+
+      setTimeout(() => {
+        // Add 20 Taka reward
+        currentUser.balance += 20;
+        lastClaimTime = Date.now();
+        updateBalance();
+
+        alert("✅ 15 seconds completed!\n20 Taka added to your balance 🎉");
+
+        // Referral Bonus Logic (as per your requirement)
+        // If this user was referred AND this is their FIRST claim → referrer gets 20 Taka
+        if (currentUser.referredBy && !currentUser.hasClaimedOnce) {
+          currentUser.hasClaimedOnce = true;
+          // In real backend this would update the referrer's balance
+          // For this demo we show a message (in full app it will be automatic)
+          console.log("%cReferral bonus triggered for referrer: " + currentUser.referredBy, "color:#64dd17; font-weight:bold");
+          alert("🎁 Your referrer just earned 20 Taka bonus because you completed your first click!");
+        }
+
+        localStorage.setItem('user', JSON.stringify(currentUser)); // Save updated data
+      }, 15000);
+    }
+
+    function withdraw() {
+      const amount = parseInt(document.getElementById('withdrawAmount').value);
+      const msg = document.getElementById('withdrawMsg');
+
+      if (!amount || amount < 100) {
+        msg.style.color = "red";
+        msg.textContent = "Minimum withdrawal amount is 100 Taka";
+        return;
+      }
+      if (amount > currentUser.balance) {
+        msg.style.color = "red";
+        msg.textContent = "Insufficient balance!";
+        return;
+      }
+
+      // Deduct only on successful withdrawal (no other deductions)
+      currentUser.balance -= amount;
+      updateBalance();
+      localStorage.setItem('user', JSON.stringify(currentUser));
+
+      msg.style.color = "#64dd17";
+      msg.textContent = `✅ Withdrawal of ৳ ${amount} successful!\nMoney sent to your wallet soon.`;
+    }
+
+    function copyCode() {
+      const code = document.getElementById('myReferCode').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        alert("✅ Referral code copied: " + code);
+      });
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.nav-item').forEach((el, i) => {
+        el.classList.toggle('active', i === tab);
+      });
+
+      document.getElementById('homePage').classList.toggle('active', tab === 0);
+      document.getElementById('referPage').classList.toggle('active', tab === 1);
+      document.getElementById('withdrawPage').classList.toggle('active', tab === 2);
+    }
+
+    // Auto load if already registered
+    window.onload = () => {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showMainApp();
+      }
+    };
+  </script>
+</body>
+</html>
